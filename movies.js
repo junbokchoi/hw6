@@ -18,6 +18,11 @@ window.addEventListener('DOMContentLoaded', async function(event) {
   // console to ensure you've got good data
   // ⬇️ ⬇️ ⬇️
 
+      let response = await fetch('https://api.themoviedb.org/3/movie/now_playing?api_key=2c9b67b98fc2177b9f92844aae63eb9a&language=en-US')
+    let json = await response.json()
+    let movies = json.results
+
+    console.log(movies)
   // ⬆️ ⬆️ ⬆️ 
   // End Step 1
   
@@ -33,6 +38,17 @@ window.addEventListener('DOMContentLoaded', async function(event) {
   //   <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
   // </div>
   // ⬇️ ⬇️ ⬇️
+  for (let i = 0; i < movies.length; i++) {
+    let movieList = movies[i]
+    let moviePoster = movieList.poster_path
+    let movieID = movieList.id
+    let movie = document.querySelector('.movies').insertAdjacentHTML('beforeend', `
+      <div class="mov-${movieID} w-1/5 p-4">
+        <img src="https://image.tmdb.org/t/p/w500/${moviePoster}" class="w-full">
+        <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
+      </div>
+    `)
+  
 
   // ⬆️ ⬆️ ⬆️ 
   // End Step 2
@@ -48,6 +64,14 @@ window.addEventListener('DOMContentLoaded', async function(event) {
   //   the movie is watched. Use .classList.remove('opacity-20')
   //   to remove the class if the element already contains it.
   // ⬇️ ⬇️ ⬇️
+
+  let watchbutton = document.querySelector(`.mov-${movieID} .watched-button`).addEventListener('click', async function(event) {
+  let uniquemovie = document.querySelector(`.mov-${movieID} .watched-button`)
+    event.preventDefault()
+    console.log(`I watched ${movieID} movie`)
+    uniquemovie.classList.add('opacity-20')
+  })
+  
 
   // ⬆️ ⬆️ ⬆️ 
   // End Step 3
@@ -69,4 +93,16 @@ window.addEventListener('DOMContentLoaded', async function(event) {
   //   database.
   // - Hint: you can use if (document) with no comparison
   //   operator to test for the existence of an object.
+
+
+  let db = firebase.firestore()
+  if (document.querySelector(`.mov-${movieID} .watched-button`).classList.contains(`opacity-20`)) {
+    db.collection(`watchedmovie`).doc(`${movieID}`).set({
+    })
+  }
+
+  let movieDoc = db.collection('watchedmovie').doc(`${movieID}`).get()
+     console.log(movieDoc)
+     
+}
 })
